@@ -33,7 +33,7 @@ export default function RootLayout({
       <WagmiConfig config={config}>
         <ConnectKitProvider mode="dark">
           <body>
-            <div style={{ display: "flex", flexDirection: "column", minHeight: "170vh" }}>
+            <div style={{ display: "flex", flexDirection: "column", minHeight: "250vh" }}>
               <Navbar />
               <div style={{flexGrow: 1}}>{children}</div>
               <Footer />
