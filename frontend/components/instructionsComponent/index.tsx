@@ -624,7 +624,7 @@ function BetMany() {
 					<button
 						disabled={!write}
 						onClick={() =>write ({
-							args: [ethers.parseUnits(amount)]
+							args: [amount]
 						})
 					}
 					>
