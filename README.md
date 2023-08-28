@@ -4,8 +4,8 @@
 
 Decentralized Lottery application based on previously deployed Token and Lottery contracts.
 
-- **Token contract**: 0x48dcB827f5f73041Ad90535627469941D1B978b7
-- **Lottery contract**: 0x6b7Cff97206507ff81B2DcCb961e69C72cA63973
+- **Token contract**: 0x3D1752A2BDA6D85347ad8d4FFD59ac7d3CEcEc11
+- **Lottery contract**: 0x576699323492733FC4EAA26b4C973D01054e86c1
 
 ## Setup:
 1. Clone the repository.
