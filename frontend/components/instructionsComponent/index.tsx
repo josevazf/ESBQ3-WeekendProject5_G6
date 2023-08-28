@@ -178,8 +178,7 @@ function LotteryInfo() {
 				<BetsState></BetsState>
 				<BetsClosingTime></BetsClosingTime>
 				<TokenPrice></TokenPrice>
-				<BetPrice></BetPrice>
-				<BetFee></BetFee>
+				<FinalPrice></FinalPrice>
 				<PrizePool></PrizePool>
 		</div>
 	);
@@ -213,7 +212,8 @@ function BetsClosingTime() {
 
 	if (isLoading) return <div>Checking closing time…</div>;
   if (isError) return <div>Error checking closing time</div>;
-  return <div><b>Closing time:</b> {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+  if (time === 0) return <div><b>Closing time:</b> Not defined</div>;
+	if (time !== 0) return <div><b>Closing time:</b> {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
 }
 
 function TokenPrice() {
@@ -230,16 +230,14 @@ function TokenPrice() {
 }
 
 function BetPrice() {
-	const { data, isError, isLoading } = useContractRead({
+	const { data } = useContractRead({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
     functionName: 'betPrice',
 		watch: true
   });
 
-	if (isLoading) return <div>Checking bets state…</div>;
-  if (isError) return <div>Error checking bets state</div>;
-  return <div><b>Bet price:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
+  return ethers.formatUnits(String(data));
 }
 
 function BetFee() {
@@ -250,9 +248,11 @@ function BetFee() {
 		watch: true
   });
 
-	if (isLoading) return <div>Checking bets state…</div>;
-  if (isError) return <div>Error checking bets state</div>;
-  return <div><b>Bet fee:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
+  return ethers.formatUnits(String(data));
+}
+
+function FinalPrice() {
+	return <div><b>Bet Price:</b> {Number(BetPrice()) + Number(BetFee())} <TokenSymbol></TokenSymbol> ({BetPrice()} + {BetFee()} Fee)</div>;
 }
 
 function PrizePool() {
@@ -728,7 +728,7 @@ function OpenBets() {
 					<button
 						disabled={!write}
 						onClick={() =>write ({
-							args: [amount]
+							args: [ethers.parseUnits(amount)]
 						})
 					}
 					>
