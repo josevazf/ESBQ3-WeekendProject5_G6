@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import styles from './instructionsComponent.module.css';
 import { useAccount, useBalance, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction, useWalletClient } from 'wagmi';
-import { BigNumberish, ethers } from 'ethers';
+import { BigNumberish, dataSlice, ethers } from 'ethers';
 import * as tokenJson from '../assets/LotteryToken.json';
 import * as lotteryJson from '../assets/Lottery.json';
 
-const TOKEN_ADDRESS = '0x48dcB827f5f73041Ad90535627469941D1B978b7';
-const LOTTERY_ADDRESS = '0x6b7Cff97206507ff81B2DcCb961e69C72cA63973';
+const TOKEN_ADDRESS = '0x3D1752A2BDA6D85347ad8d4FFD59ac7d3CEcEc11';
+const LOTTERY_ADDRESS = '0x576699323492733FC4EAA26b4C973D01054e86c1';
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935;
 
@@ -178,7 +178,7 @@ function LotteryInfo() {
 				<BetsState></BetsState>
 				<BetsClosingTime></BetsClosingTime>
 				<TokenPrice></TokenPrice>
-				<FinalPrice></FinalPrice>
+				{/* <FinalPrice></FinalPrice> */}
 				<PrizePool></PrizePool>
 		</div>
 	);
@@ -229,8 +229,8 @@ function TokenPrice() {
   return <div><b>Token price:</b> {String((Number(data) * 0.01))} <TokenSymbol></TokenSymbol> / 0.01 ETH</div>;
 }
 
-function BetPrice() {
-	const { data } = useContractRead({
+/* function BetPrice() {
+	const {data} = useContractRead({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
     functionName: 'betPrice',
@@ -241,7 +241,7 @@ function BetPrice() {
 }
 
 function BetFee() {
-	const { data, isError, isLoading } = useContractRead({
+	const {data} = useContractRead({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
     functionName: 'betFee',
@@ -249,11 +249,11 @@ function BetFee() {
   });
 
   return ethers.formatUnits(String(data));
-}
+} */
 
-function FinalPrice() {
+/* function FinalPrice() {
 	return <div><b>Bet Price:</b> {Number(BetPrice()) + Number(BetFee())} <TokenSymbol></TokenSymbol> ({BetPrice()} + {BetFee()} Fee)</div>;
-}
+} */
 
 function PrizePool() {
 	const { data, isError, isLoading } = useContractRead({
@@ -379,8 +379,8 @@ function LotteryContract() {
 					<br></br>
 				<SellTokens></SellTokens>
 					<br></br>
-				<Bet></Bet>
-					<br></br>
+				{/* <Bet></Bet>
+					<br></br> */}
 				<BetMany></BetMany>
 					<br></br>
 		</div>
@@ -568,7 +568,7 @@ function CloseLottery() {
 		);
 }
 
-function Bet() {
+/* function Bet() {
 	const [amount, setDeadline] = useState("");
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
@@ -598,7 +598,7 @@ function Bet() {
       			</a></div>}
 			</div>
 		);
-}
+} */
 
 function BetMany() {
 	const [amount, setAmount] = useState("");
@@ -728,7 +728,7 @@ function OpenBets() {
 					<button
 						disabled={!write}
 						onClick={() =>write ({
-							args: [ethers.parseUnits(amount)]
+							args: [amount]
 						})
 					}
 					>
