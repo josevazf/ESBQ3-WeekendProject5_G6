@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './instructionsComponent.module.css';
-import { useAccount, useBalance, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction, useWalletClient } from 'wagmi';
+import { useAccount, useBalance, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
 import { BigNumberish, dataSlice, ethers } from 'ethers';
 import * as tokenJson from '../assets/LotteryToken.json';
 import * as lotteryJson from '../assets/Lottery.json';
@@ -178,7 +178,7 @@ function LotteryInfo() {
 				<BetsState></BetsState>
 				<BetsClosingTime></BetsClosingTime>
 				<TokenPrice></TokenPrice>
-				{/* <FinalPrice></FinalPrice> */}
+				<FinalPrice></FinalPrice>
 				<PrizePool></PrizePool>
 		</div>
 	);
@@ -229,15 +229,14 @@ function TokenPrice() {
   return <div><b>Token price:</b> {String((Number(data) * 0.01))} <TokenSymbol></TokenSymbol> / 0.01 ETH</div>;
 }
 
-/* function BetPrice() {
+function BetPrice() {
 	const {data} = useContractRead({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
     functionName: 'betPrice',
 		watch: true
   });
-
-  return ethers.formatUnits(String(data));
+  return Number(data);
 }
 
 function BetFee() {
@@ -247,13 +246,15 @@ function BetFee() {
     functionName: 'betFee',
 		watch: true
   });
+  return Number(data);
+}
 
-  return ethers.formatUnits(String(data));
-} */
-
-/* function FinalPrice() {
-	return <div><b>Bet Price:</b> {Number(BetPrice()) + Number(BetFee())} <TokenSymbol></TokenSymbol> ({BetPrice()} + {BetFee()} Fee)</div>;
-} */
+function FinalPrice() {
+	const price = ethers.formatUnits(BigInt(BetPrice()));
+	const fee = ethers.formatUnits(BigInt(BetFee()));
+	const final = Number(price) + Number(fee);
+	return <div><b>Bet Price:</b> {final} <TokenSymbol></TokenSymbol> ({price} + {fee} Fee)</div>;
+}
 
 function PrizePool() {
 	const { data, isError, isLoading } = useContractRead({
@@ -377,7 +378,7 @@ function LotteryContract() {
 					<br></br>
 				<BuyTokens></BuyTokens>
 					<br></br>
-				<SellTokens></SellTokens>
+				<SellTokens address={address}></SellTokens>
 					<br></br>
 				{/* <Bet></Bet>
 					<br></br> */}
@@ -429,7 +430,6 @@ function BuyTokens() {
     abi: lotteryJson.abi,
     functionName: 'purchaseTokens',
   })
-	console.info({data});
 		return (
 			<div>
 					<input
@@ -457,41 +457,27 @@ function BuyTokens() {
 		);
 }
 
-function SellTokens(params: { address: `0x${string}` }) {
+async function ApproveTokens(amount: string)	{
+	const { data, write } = useContractWrite({
+    address: TOKEN_ADDRESS,
+    abi: lotteryJson.abi,
+    functionName: 'approveTokens',
+  });
+		return (
+			write ({
+				args: [LOTTERY_ADDRESS, ethers.parseUnits(amount)]
+			})
+		);
+}
+
+function SellTokens() {
 	const [amount, setAmount] = useState("");
-
-  const { data: allowance, refetch } = useContractRead({
-    address: TOKEN_ADDRESS,
-    abi: tokenJson.abi,
-    functionName: "allowance",
-    args: [params.address, LOTTERY_ADDRESS],
-  });
-
-	const { config } = usePrepareContractWrite({
-    address: TOKEN_ADDRESS,
-		abi: tokenJson.abi,
-    functionName: "approve",
-    args: [LOTTERY_ADDRESS, MAX_ALLOWANCE],
-  });
-
-  const {
-    data: writeContractResult,
-    writeAsync: approveAsync,
-    error,
-  } = useContractWrite(config);
-
-  const { isLoading: isApproving } = useWaitForTransaction({
-    hash: writeContractResult ? writeContractResult.hash : undefined,
-    onSuccess(data) {
-      refetch();
-    },
-  });
-
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
     functionName: 'returnTokens',
   })
+	console.info({data});
 		return (
 			<div>
 					<input
@@ -499,35 +485,16 @@ function SellTokens(params: { address: `0x${string}` }) {
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
 						placeholder="Amount"
-					/> 0.01 ETH / 100 TTK
+					/>
 				<br></br>
 					<button
 						disabled={!write}
-						onClick={async () => {
-							const writtenValue = await approveAsync();
-							console.info({writtenValue})
-							const { isLoading: isApproving } = useWaitForTransaction({
-								hash: writtenValue ? writtenValue.hash : undefined,
-								onSuccess(data) {
-									console.info("here");
-									write ({
-										args: [ethers.parseUnits(amount)]
-									});
-								},
-							});
-						}}
-					>
-						Approve Tokens
-					</button>
-{/* 					<button
-						disabled={!write}
-						onClick={() =>write ({
-							args: [ethers.parseUnits(amount)]
-						})
-					}
+						onClick={async () => {await ApproveTokens(amount);
+							write ({args: [ethers.parseUnits(amount)]})
+					}}
 					>
 						Sell Tokens
-					</button> */}
+					</button>
 					{isLoading && <div>Approve in wallet</div>}
 					{isSuccess && <div>
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
@@ -536,6 +503,7 @@ function SellTokens(params: { address: `0x${string}` }) {
 			</div>
 		);
 }
+
 
 function CloseLottery() {
 	const [amount, setDeadline] = useState("");
