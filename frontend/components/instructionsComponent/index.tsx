@@ -311,7 +311,6 @@ function TransferTokens() {
 							onChange={(e) => setAmount(e.target.value)}
 							placeholder='Amount'
 						/>
-				<br></br>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
@@ -342,9 +341,10 @@ function LotteryContract() {
 					<h3>Lottery Interaction</h3>
 				</div>
 			</header>
-				{/* <WinnerPrize address={address}></WinnerPrize> */}
-				<CheckAllowance address={address}></CheckAllowance>
+				<WinnerPrize address={address}></WinnerPrize>
 				<WithdrawPrize></WithdrawPrize>
+					<br></br>
+				<CheckAllowance address={address}></CheckAllowance>
 					<br></br>
 				<CloseLottery></CloseLottery>
 					<br></br>
@@ -377,7 +377,6 @@ function WithdrawPrize() {
 						onChange={(e) => setAmount(e.target.value)}
 						placeholder="Amount"
 					/>
-				<br></br>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
@@ -405,13 +404,14 @@ function BuyTokens() {
   })
 		return (
 			<div>
+				<b>Buy Tokens</b>
+				<br></br>
 					<input
 						type='number'
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
-						placeholder="Amount"
-					/> 100/0.01 ETH
-				<br></br>
+						placeholder="100/0.01 ETH"
+					/>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
@@ -419,7 +419,7 @@ function BuyTokens() {
 						})
 					}
 					>
-						Buy Tokens
+						Buy
 					</button>
 					{isLoading && <div>Approve in wallet</div>}
 					{isSuccess && <div>
@@ -439,11 +439,17 @@ function ApproveTokens()	{
   })
 		return (
 			<div>
+				<input
+					type='number'
+					value={amount}
+					onChange={(e) => setAmount(e.target.value)}
+					placeholder="Amount"
+					/>
 				<button
 					disabled={!write}
 					onClick={() => {
 						write ({
-							args: [LOTTERY_ADDRESS, MAX_ALLOWANCE],
+							args: [LOTTERY_ADDRESS, ethers.parseUnits(amount)],
 						})
 					}}
 				>
@@ -469,7 +475,7 @@ function CheckAllowance(params: { address: `0x${string}` }) {
 
 	if (isLoading) return <div>Checking allowance…</div>;
   if (isError) return <div>Error checking allowance</div>;
-  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(Number(data)))} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(data))} <TokenSymbol></TokenSymbol></div>;
 }
 
 function SellTokens() {
@@ -488,7 +494,6 @@ function SellTokens() {
 						onChange={(e) => setAmount(e.target.value)}
 						placeholder="Amount"
 					/>
-				<br></br>
 					<button
 						disabled={!write}
 						onClick={() => {
