@@ -192,7 +192,7 @@ function BetsState() {
 		watch: true
   });
 
-	const betsOpen = data ? 'Open' : 'Close';
+	const betsOpen = data ? 'Open' : 'Closed';
 
 	if (isLoading) return <div>Checking bets state…</div>;
   if (isError) return <div>Error checking bets state</div>;
@@ -207,13 +207,15 @@ function BetsClosingTime() {
 		watch: true
   });
 
+	const now = new Date();
 	const time = Number(data);
 	const closingTime = new Date(time * 1000);
 
 	if (isLoading) return <div>Checking closing time…</div>;
   if (isError) return <div>Error checking closing time</div>;
   if (time === 0) return <div><b>Closing time:</b> Not defined</div>;
-	if (time !== 0) return <div><b>Closing time:</b> {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+	if (time < now.getTime()) return <div><b>Closing time:</b> ended at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>
+	if (time !== 0) return <div><b>Closing time:</b> ending at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
 }
 
 function TokenPrice() {
