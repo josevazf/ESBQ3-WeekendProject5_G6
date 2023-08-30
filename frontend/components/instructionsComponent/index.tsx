@@ -350,6 +350,7 @@ function LotteryContract() {
 					<br></br>
 				<BuyTokens></BuyTokens>
 					<br></br>
+				<b>Sell Tokens</b>
 				<ApproveTokens></ApproveTokens>
 				<SellTokens></SellTokens>
 					<br></br>
@@ -634,7 +635,6 @@ function WithdrawFees() {
 					onChange={(e) => setAmount(e.target.value)}
 					placeholder="Amount"
 				/>
-			<br></br>
 				<button
 					disabled={!write}
 					onClick={() =>write ({
@@ -662,13 +662,14 @@ function OpenBets() {
   })
 	return (
 		<div>
+			<b>Start Lottery</b>
+			<br></br>
 				<input
 					type='number'
 					value={amount}
 					onChange={(e) => setDeadline(e.target.value)}
 					placeholder="Deadline"
 				/>
-			<br></br>
 				<button
 					disabled={!write}
 					onClick={() =>write ({
@@ -701,7 +702,6 @@ function TransferOwnership() {
 				onChange={(e) => setAddress(e.target.value)}
 				placeholder='Address (0x...)'
 			/>
-				<br></br>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
