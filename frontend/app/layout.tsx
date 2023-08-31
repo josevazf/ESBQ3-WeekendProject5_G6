@@ -18,7 +18,7 @@ const config = createConfig(
 		chains,
     // Optional
     appDescription: "Lottery",
-    appUrl: "https://family.co", // your app's url
+    appUrl: "https://esbq3-group6-lottery.netlify.app/", // your app's url
     appIcon: "https://family.co/logo.png", // your app's logo,no bigger than 1024x1024px (max. 1MB)
   })
 );
@@ -31,9 +31,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <WagmiConfig config={config}>
-        <ConnectKitProvider mode="dark">
+        <ConnectKitProvider theme="retro">
           <body>
-            <div style={{ display: "flex", flexDirection: "column", minHeight: "250vh" }}>
+            <div style={{ display: "flex", flexDirection: "column", minHeight: "200vh" }}>
               <Navbar />
               <div style={{flexGrow: 1}}>{children}</div>
               <Footer />

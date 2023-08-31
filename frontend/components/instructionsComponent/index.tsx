@@ -21,10 +21,11 @@ export default function Loading() {
 			<div className={styles.container}>
 				<header className={styles.header_container}>
 					<div className={styles.header}>
-						<h1>
+						<img src="https://tomato-leading-stoat-542.mypinata.cloud/ipfs/QmZB7CZADmeJ2wwas5U6wbdP3MZ84mUWDoqGxCq5JtYpDq"></img>
+ 						{/*<h1>
 						🤑 <span> Lottery</span> 🤑
 						</h1>
-						<h3>The ultimate web3 Lottery</h3>
+						<h3>The ultimate web3 Lottery</h3> */}
 					</div>
 				</header>
 					<p className={styles.get_started}>
@@ -309,7 +310,7 @@ function CheckAllowance(params: { address: `0x${string}` }) {
     abi: tokenJson.abi,
     functionName: 'allowance',
 		args: [params.address, LOTTERY_ADDRESS],
-		watch: true
+		watch: true,
   });
 
 	const allowance = Number(data);
@@ -498,7 +499,6 @@ function TransferTokens() {
 }
 
 function CloseLottery() {
-	const [amount, setDeadline] = useState("");
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
@@ -506,10 +506,8 @@ function CloseLottery() {
   })
 		return (
 			<div>
-				<label>
-					Close the lottery and find the winner
-				</label>
-				<br></br>
+				<b>Close the lottery and find the winner</b>
+					<br></br>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
