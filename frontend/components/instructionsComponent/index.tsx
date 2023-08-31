@@ -7,8 +7,6 @@ import * as lotteryJson from '../assets/Lottery.json';
 
 const TOKEN_ADDRESS = '0x3D1752A2BDA6D85347ad8d4FFD59ac7d3CEcEc11';
 const LOTTERY_ADDRESS = '0x576699323492733FC4EAA26b4C973D01054e86c1';
-const MAX_ALLOWANCE =
-  115792089237316195423570985008687907853269984665640564039457584007913129639935;
 
 export default function Loading() {
 	const [mounted, setMounted] = useState(false);
@@ -40,7 +38,7 @@ function PageBody() {
 	if (address)
 		return (
 			<div>
-				<WalletInfo></WalletInfo>
+				<UserInfo></UserInfo>
 				<hr></hr>
 				<LotteryInfo></LotteryInfo>
 				<hr></hr>
@@ -70,7 +68,7 @@ function PageBody() {
 
 ////////\\\\\\\\     WALLET INFO   ////////\\\\\\\\
 
-function WalletInfo() {
+function UserInfo() {
 	const {address, isConnecting, isDisconnected } = useAccount();
 	const { chain } = useNetwork();
 	if (address)
@@ -78,15 +76,14 @@ function WalletInfo() {
       <div>
 				<header className={styles.header_container}>
 					<div className={styles.header}>
-						<h3>Wallet Info</h3>
+						<h3>User Info</h3>
 					</div>
 				</header>
 					<p>Connected to <i>{chain?.name}</i> network </p>
 					{/* <WalletBalance address={address}></WalletBalance> */}
 					<TokenName></TokenName>
 					<WalletTokenBalance address={address}></WalletTokenBalance>
-					<WinnerPrize address={address}></WinnerPrize> <WithdrawPrize></WithdrawPrize>
-					<br></br>
+					<WinnerPrize address={address}></WinnerPrize> 
       </div>
     );
   if (isConnecting)
@@ -157,16 +154,16 @@ function WinnerPrize(params: { address: `0x${string}` }) {
 		watch: true
   });
 
-	const isWinner = Number(data) !== 0 ? 'You have won the last Lottery!' : 'You did not win the last Lottery...';
-
 	if (isLoading) return <div>Checking bets state…</div>;
   if (isError) return <div>Error checking bets state</div>;
-  return <div><p>{isWinner}</p>
-		<p><b>Winning prize:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></p></div>;
+  if (Number(data) === 0) return <div><p>⭕ You do not have any prize to claim...</p></div>
+	if (Number(data) !== 0) return <div>
+		<p>🏆 You have a prize of {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol> to claim!
+		<WithdrawPrize amount={ethers.formatUnits(String(data))}></WithdrawPrize>
+		</p></div>;
 }
 
-function WithdrawPrize() {
-	const [amount, setAmount] = useState("");
+function WithdrawPrize({amount}: {amount: string}) {
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
@@ -174,26 +171,21 @@ function WithdrawPrize() {
   })
 	console.info({data});
 		return (
-			<div>
-					<input
-						type='number'
-						value={amount}
-						onChange={(e) => setAmount(e.target.value)}
-						placeholder="Amount"
-					/>
-					<button
-						disabled={!write}
-						onClick={() =>write ({
-							args: [ethers.parseUnits(amount)] 
-						})
-					}
-					>
-						Withdraw Prize
-					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && <a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details</a>}
-			</div>
+			<>
+				<button
+					disabled={!write}
+					onClick={() =>write ({
+						args: [ethers.parseUnits(amount)] 
+					})
+				}
+				>
+					Withdraw Prize
+				</button>
+				{isLoading && <>&nbsp;Approve in wallet</>}
+				{isSuccess && <>&nbsp;
+					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+					Transaction details</a></>}
+			</>
 		);
 }
 
@@ -259,20 +251,20 @@ function CloseLottery({isDisabled}: {isDisabled: boolean}) {
   })
 		return (
 			<>
-					<button
-						disabled={!isDisabled}
-						onClick={() =>write ({
-							args: []
-						})
-					}
-					>
-						Close Lottery
-					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && 
-						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details
-      			</a>}
+				<button
+					disabled={!isDisabled}
+					onClick={() =>write ({
+						args: []
+					})
+				}
+				>
+					Close Lottery
+				</button>
+				{isLoading && <>&nbsp;Approve in wallet</>}
+				{isSuccess && <>&nbsp;
+					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+							Transaction details
+					</a></>}
 			</>
 		);
 }
@@ -399,10 +391,10 @@ function ApproveTokens()	{
 				>
 					Approve Tokens
 				</button>
-				{isLoading && <> Approve in wallet</>}
-				{isSuccess && <>
+				{isLoading && <>&nbsp;Approve in wallet</>}
+				{isSuccess && <>&nbsp;
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-						 Transaction details
+						Transaction details
 					</a></>}
 			</div>
 		);
@@ -434,11 +426,9 @@ function BuyTokens() {
 					>
 						Buy
 					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && <>
-						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details
-      			</a></>}
+					{isLoading && <>&nbsp;Approve in wallet</>}
+					{isSuccess && <>&nbsp;
+						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>Transaction details</a></>}
 			</div>
 		);
 }
@@ -467,10 +457,10 @@ function SellTokens() {
 					>
 						Sell Tokens
 					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && <>
+					{isLoading && <>&nbsp;Approve in wallet</>}
+					{isSuccess && <>&nbsp;
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details
+							Transaction details
 						</a></>}
 			</div>
 		);
@@ -510,10 +500,10 @@ function TransferTokens() {
 						>
 							Transfer Tokens
 						</button>
-						{isLoading && <> Approve in wallet</>}
-						{isSuccess && <> 
+						{isLoading && <>&nbsp;Approve in wallet</>}
+						{isSuccess && <>&nbsp;
 							<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-								 Transaction details
+								Transaction details
 							</a></>}
 			</div>
 		);
@@ -551,10 +541,10 @@ function BetMany() {
 					>
 						Bet
 					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && <>
+					{isLoading && <>&nbsp;Approve in wallet</>}
+					{isSuccess && <>&nbsp;
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details
+							Transaction details
       			</a></>}
 			</div>
 		);
@@ -620,11 +610,11 @@ function OpenBets() {
 				>
 					Open Bets
 				</button>
-				{isLoading && <div>Approve in wallet</div>}
-				{isSuccess && <div>
+				{isLoading && <>&nbsp;Approve in wallet</>}
+				{isSuccess && <>&nbsp;
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 						Transaction details
-					</a></div>}
+					</a></>}
 		</div>
 	);
 }
@@ -654,10 +644,10 @@ function WithdrawFees() {
 				>
 					Withdraw Fees
 				</button>
-				{isLoading && <> Approve in wallet</>}
-				{isSuccess && <>
+				{isLoading && <>&nbsp;Approve in wallet</>}
+				{isSuccess && <>&nbsp;
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-						 Transaction details
+						Transaction details
 					</a></>}
 		</div>
 	);
@@ -688,10 +678,10 @@ function TransferOwnership() {
 					>
 						Transfer
 					</button>
-					{isLoading && <> Approve in wallet</>}
-					{isSuccess && <> 
+					{isLoading && <>&nbsp;Approve in wallet</>}
+					{isSuccess && <>&nbsp;
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							 Transaction details
+							Transaction details
 						</a></>}
 		</div>
 	);
