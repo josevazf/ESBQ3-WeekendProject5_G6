@@ -474,9 +474,10 @@ function CheckAllowance(params: { address: `0x${string}` }) {
 		watch: true
   });
 
+	const allowance = Number(data);
 	if (isLoading) return <div>Checking allowance…</div>;
   if (isError) return <div>Error checking allowance</div>;
-  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(data))} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(allowance))} <TokenSymbol></TokenSymbol></div>;
 }
 
 function SellTokens() {
