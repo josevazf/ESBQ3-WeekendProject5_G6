@@ -182,7 +182,7 @@ function WithdrawPrize({amount}: {amount: string}) {
 					Withdraw Prize
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
-				{isSuccess && <>&nbsp;
+				{isSuccess && <>&nbsp; 
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 					Transaction details</a></>}
 			</>
@@ -261,7 +261,7 @@ function CloseLottery({isDisabled}: {isDisabled: boolean}) {
 					Close Lottery
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
-				{isSuccess && <>&nbsp;
+				{isSuccess && <>&nbsp; 
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 							Transaction details
 					</a></>}
@@ -392,7 +392,7 @@ function ApproveTokens()	{
 					Approve Tokens
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
-				{isSuccess && <>&nbsp;
+				{isSuccess && <>&nbsp; 
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 						Transaction details
 					</a></>}
@@ -427,7 +427,7 @@ function BuyTokens() {
 						Buy
 					</button>
 					{isLoading && <>&nbsp;Approve in wallet</>}
-					{isSuccess && <>&nbsp;
+					{isSuccess && <>&nbsp; 
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>Transaction details</a></>}
 			</div>
 		);
@@ -458,7 +458,7 @@ function SellTokens() {
 						Sell Tokens
 					</button>
 					{isLoading && <>&nbsp;Approve in wallet</>}
-					{isSuccess && <>&nbsp;
+					{isSuccess && <>&nbsp; 
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 							Transaction details
 						</a></>}
@@ -501,7 +501,7 @@ function TransferTokens() {
 							Transfer Tokens
 						</button>
 						{isLoading && <>&nbsp;Approve in wallet</>}
-						{isSuccess && <>&nbsp;
+						{isSuccess && <>&nbsp; 
 							<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 								Transaction details
 							</a></>}
@@ -542,7 +542,7 @@ function BetMany() {
 						Bet
 					</button>
 					{isLoading && <>&nbsp;Approve in wallet</>}
-					{isSuccess && <>&nbsp;
+					{isSuccess && <>&nbsp; 
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 							Transaction details
       			</a></>}
@@ -611,7 +611,7 @@ function OpenBets() {
 					Open Bets
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
-				{isSuccess && <>&nbsp;
+				{isSuccess && <>&nbsp; 
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 						Transaction details
 					</a></>}
@@ -645,7 +645,7 @@ function WithdrawFees() {
 					Withdraw Fees
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
-				{isSuccess && <>&nbsp;
+				{isSuccess && <>&nbsp; 
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 						Transaction details
 					</a></>}
@@ -679,7 +679,7 @@ function TransferOwnership() {
 						Transfer
 					</button>
 					{isLoading && <>&nbsp;Approve in wallet</>}
-					{isSuccess && <>&nbsp;
+					{isSuccess && <>&nbsp; 
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 							Transaction details
 						</a></>}
