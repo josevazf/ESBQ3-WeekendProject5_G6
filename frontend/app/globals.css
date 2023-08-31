@@ -25,6 +25,22 @@ a {
 	text-decoration: none;
 }
 
+a:link {
+	color: rgb(28, 29, 28);
+	background-color: transparent;
+	text-decoration: underline;
+	}
+	a:visited {
+	color: pink;
+	background-color: transparent;
+	text-decoration: underline;
+	}
+	a:hover {
+	color: rgb(15, 15, 136);
+	background-color: transparent;
+	text-decoration: underline;
+	}
+
 * {
 	box-sizing: border-box;
 	padding: 0;

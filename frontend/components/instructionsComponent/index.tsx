@@ -85,7 +85,8 @@ function WalletInfo() {
 					{/* <WalletBalance address={address}></WalletBalance> */}
 					<TokenName></TokenName>
 					<WalletTokenBalance address={address}></WalletTokenBalance>
-					<WinnerPrize address={address}></WinnerPrize>
+					<WinnerPrize address={address}></WinnerPrize> <WithdrawPrize></WithdrawPrize>
+					<br></br>
       </div>
     );
   if (isConnecting)
@@ -161,7 +162,39 @@ function WinnerPrize(params: { address: `0x${string}` }) {
 	if (isLoading) return <div>Checking bets state…</div>;
   if (isError) return <div>Error checking bets state</div>;
   return <div><p>{isWinner}</p>
-		<p><b>Winning prize:</b> {Number(data)} <TokenSymbol></TokenSymbol></p></div>;
+		<p><b>Winning prize:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></p></div>;
+}
+
+function WithdrawPrize() {
+	const [amount, setAmount] = useState("");
+	const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: LOTTERY_ADDRESS,
+    abi: lotteryJson.abi,
+    functionName: 'prizeWithdraw',
+  })
+	console.info({data});
+		return (
+			<div>
+					<input
+						type='number'
+						value={amount}
+						onChange={(e) => setAmount(e.target.value)}
+						placeholder="Amount"
+					/>
+					<button
+						disabled={!write}
+						onClick={() =>write ({
+							args: [ethers.parseUnits(amount)] 
+						})
+					}
+					>
+						Withdraw Prize
+					</button>
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && <a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+							 Transaction details</a>}
+			</div>
+		);
 }
 
 ////////\\\\\\\\   LOTTERY INFO   ////////\\\\\\\\
@@ -191,11 +224,12 @@ function BetsState() {
 		watch: true
   });
 
-	const betsOpen = data ? 'Open' : 'Closed';
-
+	const betsOpen = data ? true : false;
+	
 	if (isLoading) return <div>Checking bets state…</div>;
   if (isError) return <div>Error checking bets state</div>;
-  return <div><b>Bets state:</b> {betsOpen}</div>;
+	if (betsOpen) return <div><b>Bets state:</b> Open <CloseLottery isDisabled={betsOpen}></CloseLottery></div>;
+	if (!betsOpen) return <div><b>Bets state:</b> Open <CloseLottery isDisabled={betsOpen}></CloseLottery></div>;
 }
 
 function BetsClosingTime() {
@@ -215,6 +249,32 @@ function BetsClosingTime() {
   if (time === 0) return <div><b>Closing time:</b> Not defined</div>;
 	if (time < now.getTime()) return <div><b>Closing time:</b> ended at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>
 	if (time !== 0) return <div><b>Closing time:</b> ending at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+}
+
+function CloseLottery({isDisabled}: {isDisabled: boolean}) {
+	const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: LOTTERY_ADDRESS,
+    abi: lotteryJson.abi,
+    functionName: 'closeLottery',
+  })
+		return (
+			<>
+					<button
+						disabled={!isDisabled}
+						onClick={() =>write ({
+							args: []
+						})
+					}
+					>
+						Close Lottery
+					</button>
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && 
+						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+							 Transaction details
+      			</a>}
+			</>
+		);
 }
 
 function TokenPrice() {
@@ -268,7 +328,7 @@ function PrizePool() {
 
 	if (isLoading) return <div>Checking Prize Pool…</div>;
   if (isError) return <div>Error checking Prize Pool</div>;
-  return <div><b>Prize Pool:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>Prize Pool:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></div>;
 }
 
 ////////\\\\\\\\   LOTTERY CONTRACT   ////////\\\\\\\\
@@ -283,17 +343,12 @@ function LotteryContract() {
 					<h3>Lottery Interaction</h3>
 				</div>
 			</header>
-				<WinnerPrize address={address}></WinnerPrize>
-				<WithdrawPrize></WithdrawPrize>
-					<br></br>
 				<CheckAllowance address={address}></CheckAllowance>
-					<br></br>
-				<CloseLottery></CloseLottery>
+				<ApproveTokens></ApproveTokens>
 					<br></br>
 				<BuyTokens></BuyTokens>
 					<br></br>
 				<b>Sell Tokens</b>
-				<ApproveTokens></ApproveTokens>
 				<SellTokens></SellTokens>
 					<br></br>
 				<TransferTokens></TransferTokens>
@@ -316,39 +371,39 @@ function CheckAllowance(params: { address: `0x${string}` }) {
 	const allowance = Number(data);
 	if (isLoading) return <div>Checking allowance…</div>;
   if (isError) return <div>Error checking allowance</div>;
-  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(allowance))} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>Approved Tokens: </b> {ethers.formatUnits(BigInt(allowance))} <TokenSymbol></TokenSymbol></div>;
 }
 
-function WithdrawPrize() {
+function ApproveTokens()	{
 	const [amount, setAmount] = useState("");
 	const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: LOTTERY_ADDRESS,
-    abi: lotteryJson.abi,
-    functionName: 'prizeWithdraw',
+    address: TOKEN_ADDRESS,
+    abi: tokenJson.abi,
+    functionName: 'approve',
   })
-	console.info({data});
 		return (
 			<div>
-					<input
-						type='number'
-						value={amount}
-						onChange={(e) => setAmount(e.target.value)}
-						placeholder="Amount"
+				<input
+					type='number'
+					value={amount}
+					onChange={(e) => setAmount(e.target.value)}
+					placeholder="Amount"
 					/>
-					<button
-						disabled={!write}
-						onClick={() =>write ({
-							value: ethers.parseUnits(amount) 
+				<button
+					disabled={!write}
+					onClick={() => {
+						write ({
+							args: [LOTTERY_ADDRESS, ethers.parseUnits(amount)],
 						})
-					}
-					>
-						Withdraw Prize
-					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div>
-						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-      			</a></div>}
+					}}
+				>
+					Approve Tokens
+				</button>
+				{isLoading && <> Approve in wallet</>}
+				{isSuccess && <>
+					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+						 Transaction details
+					</a></>}
 			</div>
 		);
 }
@@ -379,45 +434,11 @@ function BuyTokens() {
 					>
 						Buy
 					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div>
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && <>
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-      			</a></div>}
-			</div>
-		);
-}
-
-function ApproveTokens()	{
-	const [amount, setAmount] = useState("");
-	const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: TOKEN_ADDRESS,
-    abi: tokenJson.abi,
-    functionName: 'approve',
-  })
-		return (
-			<div>
-				<input
-					type='number'
-					value={amount}
-					onChange={(e) => setAmount(e.target.value)}
-					placeholder="Amount"
-					/>
-				<button
-					disabled={!write}
-					onClick={() => {
-						write ({
-							args: [LOTTERY_ADDRESS, ethers.parseUnits(amount)],
-						})
-					}}
-				>
-					Approve Tokens
-				</button>
-				{isLoading && <div>Approve in wallet</div>}
-				{isSuccess && <div>
-					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-						Transaction details
-					</a></div>}
+							 Transaction details
+      			</a></>}
 			</div>
 		);
 }
@@ -446,11 +467,11 @@ function SellTokens() {
 					>
 						Sell Tokens
 					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div>
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && <>
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-						</a></div>}
+							 Transaction details
+						</a></>}
 			</div>
 		);
 }
@@ -489,39 +510,11 @@ function TransferTokens() {
 						>
 							Transfer Tokens
 						</button>
-						{isLoading && <div>Approve in wallet</div>}
-						{isSuccess && <div> 
+						{isLoading && <> Approve in wallet</>}
+						{isSuccess && <> 
 							<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-								Transaction details
-							</a></div>}
-			</div>
-		);
-}
-
-function CloseLottery() {
-	const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: LOTTERY_ADDRESS,
-    abi: lotteryJson.abi,
-    functionName: 'closeLottery',
-  })
-		return (
-			<div>
-				<b>Close the lottery and find the winner</b>
-					<br></br>
-					<button
-						disabled={!write}
-						onClick={() =>write ({
-							args: []
-						})
-					}
-					>
-						Close Lottery
-					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div>
-						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-      			</a></div>}
+								 Transaction details
+							</a></>}
 			</div>
 		);
 }
@@ -558,11 +551,11 @@ function BetMany() {
 					>
 						Bet
 					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div>
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && <>
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-      			</a></div>}
+							 Transaction details
+      			</a></>}
 			</div>
 		);
 }
@@ -598,7 +591,7 @@ function OwnerFees() {
 
 	if (isLoading) return <div>Checking Prize Pool…</div>;
   if (isError) return <div>Error checking Prize Pool</div>;
-  return <div><b>Fees collected:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>Fees collected:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></div>;
 }
 
 function OpenBets() {
@@ -655,17 +648,17 @@ function WithdrawFees() {
 				<button
 					disabled={!write}
 					onClick={() =>write ({
-						value: ethers.parseUnits(amount) 
+						args: [ethers.parseUnits(amount)],
 					})
 				}
 				>
 					Withdraw Fees
 				</button>
-				{isLoading && <div>Approve in wallet</div>}
-				{isSuccess && <div>
+				{isLoading && <> Approve in wallet</>}
+				{isSuccess && <>
 					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-						Transaction details
-					</a></div>}
+						 Transaction details
+					</a></>}
 		</div>
 	);
 }
@@ -695,11 +688,11 @@ function TransferOwnership() {
 					>
 						Transfer
 					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div> 
+					{isLoading && <> Approve in wallet</>}
+					{isSuccess && <> 
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-						</a></div>}
+							 Transaction details
+						</a></>}
 		</div>
 	);
 }
