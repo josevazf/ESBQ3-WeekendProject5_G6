@@ -43,8 +43,6 @@ function PageBody() {
 				<hr></hr>
 				<LotteryInfo></LotteryInfo>
 				<hr></hr>
-				<TokenContract></TokenContract>
-				<hr></hr>
 				<LotteryContract></LotteryContract>
 				<hr></hr>
 				<OwnerInteractions></OwnerInteractions>
@@ -119,7 +117,7 @@ function TokenName() {
 
   if (isLoading) return <div>Fetching name…</div>;
   if (isError) return <div>Error fetching name</div>;
-  return <div><b>Token: </b> {name} (<TokenSymbol></TokenSymbol>)</div>;
+  return <div><b>Token: </b> {name} ({TokenSymbol()})</div>;
 }
 
 function TokenSymbol() {
@@ -133,7 +131,7 @@ function TokenSymbol() {
 
   if (isLoading) return <div>Fetching name…</div>;
   if (isError) return <div>Error fetching symbol</div>;
-  return <>{symbol}</>;
+  return symbol;
 }
 
 function WalletTokenBalance(params: { address: `0x${string}` }) {
@@ -272,63 +270,6 @@ function PrizePool() {
   return <div><b>Prize Pool:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
 }
 
-////////\\\\\\\\   TOKEN CONTRACT   ////////\\\\\\\\
-
-function TokenContract() {
-	return (
-		<div>
-			<header className={styles.header_container}>
-				<div className={styles.header}>
-					<h3>Token Interaction</h3>
-				</div>
-			</header>
-				<TransferTokens></TransferTokens>
-					<br></br>
-		</div>
-	);
-}
-
-function TransferTokens() {
-	const [addressTo, setAddress] = useState("");
-	const [amount, setAmount] = useState("");
-	const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: TOKEN_ADDRESS,
-    abi: tokenJson.abi,
-    functionName: 'transfer',
-  })
-
-		return (
-			<div>
-				<input
-					value={addressTo}
-					onChange={(e) => setAddress(e.target.value)}
-					placeholder='Address (0x...)'
-				/>
-					<br></br>
-						<input
-							type='number'
-							value={amount}
-							onChange={(e) => setAmount(e.target.value)}
-							placeholder='Amount'
-						/>
-					<button
-						disabled={!write}
-						onClick={() =>write ({
-							args: [addressTo, ethers.parseUnits(amount)],
-						})
-					}
-					>
-						Transfer Tokens
-					</button>
-					{isLoading && <div>Approve in wallet</div>}
-					{isSuccess && <div> 
-						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-							Transaction details
-      			</a></div>}
-			</div>
-		);
-}
-
 ////////\\\\\\\\   LOTTERY CONTRACT   ////////\\\\\\\\
 
 function LotteryContract() {
@@ -354,12 +295,27 @@ function LotteryContract() {
 				<ApproveTokens></ApproveTokens>
 				<SellTokens></SellTokens>
 					<br></br>
-				{/* <Bet></Bet>
-					<br></br> */}
+				<TransferTokens></TransferTokens>
+					<br></br>
 				<BetMany></BetMany>
 					<br></br>
 		</div>
 	);
+}
+
+function CheckAllowance(params: { address: `0x${string}` }) {
+	const { data, isError, isLoading } = useContractRead({
+    address: TOKEN_ADDRESS,
+    abi: tokenJson.abi,
+    functionName: 'allowance',
+		args: [params.address, LOTTERY_ADDRESS],
+		watch: true
+  });
+
+	const allowance = Number(data);
+	if (isLoading) return <div>Checking allowance…</div>;
+  if (isError) return <div>Error checking allowance</div>;
+  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(allowance))} <TokenSymbol></TokenSymbol></div>;
 }
 
 function WithdrawPrize() {
@@ -411,7 +367,7 @@ function BuyTokens() {
 						type='number'
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
-						placeholder="100/0.01 ETH"
+						placeholder={`100 ${TokenSymbol()}/0.01 ETH`}
 					/>
 					<button
 						disabled={!write}
@@ -465,21 +421,6 @@ function ApproveTokens()	{
 		);
 }
 
-function CheckAllowance(params: { address: `0x${string}` }) {
-	const { data, isError, isLoading } = useContractRead({
-    address: TOKEN_ADDRESS,
-    abi: tokenJson.abi,
-    functionName: 'allowance',
-		args: [params.address, LOTTERY_ADDRESS],
-		watch: true
-  });
-
-	const allowance = Number(data);
-	if (isLoading) return <div>Checking allowance…</div>;
-  if (isError) return <div>Error checking allowance</div>;
-  return <div><b>You have allowed: </b> {ethers.formatUnits(BigInt(allowance))} <TokenSymbol></TokenSymbol></div>;
-}
-
 function SellTokens() {
 	const [amount, setAmount] = useState("");
 	const { data, isLoading, isSuccess, write } = useContractWrite({
@@ -490,12 +431,12 @@ function SellTokens() {
 	console.info({data});
 		return (
 			<div>
-					<input
-						type='number'
-						value={amount}
-						onChange={(e) => setAmount(e.target.value)}
-						placeholder="Amount"
-					/>
+				<input
+					type='number'
+					value={amount}
+					onChange={(e) => setAmount(e.target.value)}
+					placeholder={`0.01 ETH/100 ${TokenSymbol()}`}
+				/>
 					<button
 						disabled={!write}
 						onClick={() => {
@@ -508,7 +449,50 @@ function SellTokens() {
 					{isSuccess && <div>
 						<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
 							Transaction details
-      			</a></div>}
+						</a></div>}
+			</div>
+		);
+}
+
+function TransferTokens() {
+	const [addressTo, setAddress] = useState("");
+	const [amount, setAmount] = useState("");
+	const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: TOKEN_ADDRESS,
+    abi: tokenJson.abi,
+    functionName: 'transfer',
+  })
+
+		return (
+			<div>
+				<b>Transfer Tokens</b>
+				<br></br>	
+					<input
+						value={addressTo}
+						onChange={(e) => setAddress(e.target.value)}
+						placeholder='Address to (0x...)'
+					/>
+						<br></br>
+							<input
+								type='number'
+								value={amount}
+								onChange={(e) => setAmount(e.target.value)}
+								placeholder='Amount'
+							/>
+						<button
+							disabled={!write}
+							onClick={() =>write ({
+								args: [addressTo, ethers.parseUnits(amount)],
+							})
+						}
+						>
+							Transfer Tokens
+						</button>
+						{isLoading && <div>Approve in wallet</div>}
+						{isSuccess && <div> 
+							<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+								Transaction details
+							</a></div>}
 			</div>
 		);
 }
@@ -558,16 +542,15 @@ function BetMany() {
 		return (
 			<div>
 				<label>
-					Set number of Bets (1 bet = {final/(10**18)} <TokenSymbol></TokenSymbol>)
+					<b>Place Bets</b>
 				</label>
 				<br></br>
 					<input
 						type='number'
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
-						placeholder="Amount"
+						placeholder={`1 bet = ${final/(10**18)} ${TokenSymbol()}`}
 					/>
-				<br></br>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
@@ -575,7 +558,7 @@ function BetMany() {
 						})
 					}
 					>
-						Place Bets
+						Bet
 					</button>
 					{isLoading && <div>Approve in wallet</div>}
 					{isSuccess && <div>
@@ -596,10 +579,10 @@ function OwnerInteractions() {
 					<h3>Owner Interactions</h3>
 				</div>
 			</header>
+				<OpenBets></OpenBets>
+					<br></br>
 				<OwnerFees></OwnerFees>
 				<WithdrawFees></WithdrawFees>
-					<br></br>
-				<OpenBets></OpenBets>
 					<br></br>
 				<TransferOwnership></TransferOwnership>
 					<br></br>
@@ -618,40 +601,6 @@ function OwnerFees() {
 	if (isLoading) return <div>Checking Prize Pool…</div>;
   if (isError) return <div>Error checking Prize Pool</div>;
   return <div><b>Fees collected:</b> {String(data)} <TokenSymbol></TokenSymbol></div>;
-}
-
-function WithdrawFees() {
-	const [amount, setAmount] = useState("");
-	const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: LOTTERY_ADDRESS,
-    abi: lotteryJson.abi,
-    functionName: 'ownerWithdraw',
-  })
-	console.info({data});
-	return (
-		<div>
-				<input
-					type='number'
-					value={amount}
-					onChange={(e) => setAmount(e.target.value)}
-					placeholder="Amount"
-				/>
-				<button
-					disabled={!write}
-					onClick={() =>write ({
-						value: ethers.parseUnits(amount) 
-					})
-				}
-				>
-					Withdraw Fees
-				</button>
-				{isLoading && <div>Approve in wallet</div>}
-				{isSuccess && <div>
-					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
-						Transaction details
-					</a></div>}
-		</div>
-	);
 }
 
 function OpenBets() {
@@ -689,6 +638,40 @@ function OpenBets() {
 	);
 }
 
+function WithdrawFees() {
+	const [amount, setAmount] = useState("");
+	const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: LOTTERY_ADDRESS,
+    abi: lotteryJson.abi,
+    functionName: 'ownerWithdraw',
+  })
+	console.info({data});
+	return (
+		<div>
+				<input
+					type='number'
+					value={amount}
+					onChange={(e) => setAmount(e.target.value)}
+					placeholder="Amount"
+				/>
+				<button
+					disabled={!write}
+					onClick={() =>write ({
+						value: ethers.parseUnits(amount) 
+					})
+				}
+				>
+					Withdraw Fees
+				</button>
+				{isLoading && <div>Approve in wallet</div>}
+				{isSuccess && <div>
+					<a target={"_blank"} href={`https://sepolia.etherscan.io/tx/${data?.hash}`}>
+						Transaction details
+					</a></div>}
+		</div>
+	);
+}
+
 function TransferOwnership() {
 	const [addressTo, setAddress] = useState("");
 	const { data, isLoading, isSuccess, write } = useContractWrite({
@@ -698,11 +681,13 @@ function TransferOwnership() {
   })
 	return (
 		<div>
-			<input
-				value={addressTo}
-				onChange={(e) => setAddress(e.target.value)}
-				placeholder='Address (0x...)'
-			/>
+			<b>Transfer Ownership</b>
+			<br></br>
+				<input
+					value={addressTo}
+					onChange={(e) => setAddress(e.target.value)}
+					placeholder='Address to (0x...)'
+				/>
 					<button
 						disabled={!write}
 						onClick={() =>write ({
@@ -710,7 +695,7 @@ function TransferOwnership() {
 						})
 					}
 					>
-						Transfer Ownership
+						Transfer
 					</button>
 					{isLoading && <div>Approve in wallet</div>}
 					{isSuccess && <div> 
