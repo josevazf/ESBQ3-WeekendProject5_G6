@@ -44,7 +44,7 @@ function PageBody() {
 				<hr></hr>
 				<LotteryContract></LotteryContract>
 				<hr></hr>
-				<OwnerInteractions></OwnerInteractions>
+				<OwnerInteractions address={address}></OwnerInteractions>
 			</div>
 		);
 		if (isConnecting)
@@ -552,7 +552,20 @@ function BetMany() {
 
 ////////\\\\\\\\   OWNER INTERACTIONS   ////////\\\\\\\\
 
-function OwnerInteractions() {
+function GetOwner() {
+	const { data, isError, isLoading } = useContractRead({
+    address: LOTTERY_ADDRESS,
+    abi: lotteryJson.abi,
+    functionName: 'owner',
+		watch: true
+  });
+
+  return String(data);
+}
+
+function OwnerInteractions(params: { address: `0x${string}` }) {
+	const owner = GetOwner();
+	if (owner === params.address)
 	return (
 		<div>
 			<header className={styles.header_container}>
@@ -569,6 +582,15 @@ function OwnerInteractions() {
 					<br></br>
 		</div>
 	);
+	return (
+		<>
+			<header className={styles.header_container}>
+				<div className={styles.header}>
+					<h3>Owner Interactions</h3>
+				</div>
+			</header>
+		</>
+	)
 }
 
 function OwnerFees() {
