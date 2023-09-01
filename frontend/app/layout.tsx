@@ -3,7 +3,7 @@ import { WagmiConfig, createConfig } from "wagmi";
 import { sepolia } from "wagmi/chains";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import Navbar from "@/components/instructionsComponent/navigation/navbar";
-import Footer from "@/components/instructionsComponent/navigation/footer";
+
 
 const chains = [sepolia];
 
@@ -33,10 +33,9 @@ export default function RootLayout({
       <WagmiConfig config={config}>
         <ConnectKitProvider theme="retro">
           <body>
-            <div style={{ display: "flex", flexDirection: "column", minHeight: "170vh" }}>
+            <div style={{ display: "flex", flexDirection: "column"}}>
               <Navbar />
               <div style={{flexGrow: 1}}>{children}</div>
-              <Footer />
             </div>
           </body>
         </ConnectKitProvider>
