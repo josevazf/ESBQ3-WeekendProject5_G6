@@ -159,9 +159,10 @@ function WinnerPrize(params: { address: `0x${string}` }) {
   if (isError) return <div>Error checking bets state</div>;
   if (Number(data) === 0) return <div><p>⭕ You do not have any prize to claim...</p></div>
 	if (Number(data) !== 0) return <div>
-		<p>🏆 You have a prize of {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol>!&nbsp;
+		<p>🏆 You have a prize of {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></p>
+		<br></br>
 		<WithdrawPrize amount={ethers.formatUnits(String(data))}></WithdrawPrize>
-		</p></div>;
+		</div>;
 }
 
 function WithdrawPrize({amount}: {amount: string}) {

@@ -10,4 +10,5 @@ Decentralized Lottery application based on previously deployed Token and Lottery
 ## Setup:
 1. Clone the repository.
 2. Install dependencies with `npm install` within `frontend` folder.
-3. Run `npm run dev` and open [http://localhost:3000](http://localhost:3000) with your browser to interact with the dApp.
+3. Update variables with your contract addresses inside `/frontend/components/instructionsComponent/index.tsx`
+4. Run `npm run dev` and open [http://localhost:3000](http://localhost:3000) with your browser to interact with the dApp.
