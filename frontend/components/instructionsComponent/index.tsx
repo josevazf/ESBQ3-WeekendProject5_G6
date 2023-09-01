@@ -240,11 +240,11 @@ function BetsClosingTime() {
 	if (isLoading) return <div>Checking closing time…</div>;
   if (isError) return <div>Error checking closing time</div>;
   if (time === 0) return <div>
-		<b>Closing time:</b> Not defined</div>;
+		Closing time: Not defined</div>;
 	if (time < now.getTime()/1000) return <div>
-		Lottery ended at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+		Lottery ended at {closingTime.toLocaleTimeString().slice(0, -3)} ({closingTime.toLocaleDateString()})</div>;
 	if (time > now.getTime()/1000) return <div>
-		Lottery ending at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+		Lottery ending at {closingTime.toLocaleTimeString().slice(0, -3)} ({closingTime.toLocaleDateString()})</div>;
 }
 
 function CloseLottery(isDisabled: {isDisabled: boolean}) {
