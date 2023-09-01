@@ -247,7 +247,7 @@ function BetsClosingTime() {
 		Lottery ending at {closingTime.toLocaleTimeString().slice(0, -3)} ({closingTime.toLocaleDateString()})</div>;
 }
 
-function CloseLottery(isDisabled: {isDisabled: boolean}) {
+function CloseLottery({isDisabled}: {isDisabled: boolean}) {
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
