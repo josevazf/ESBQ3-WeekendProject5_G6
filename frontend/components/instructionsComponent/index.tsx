@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import styles from './instructionsComponent.module.css';
 import { useAccount, useBalance, useContractRead, useContractWrite, useNetwork, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
-import { BigNumberish, dataSlice, ethers, toBigInt } from 'ethers';
+import { ethers} from 'ethers';
 import * as tokenJson from '../assets/LotteryToken.json';
 import * as lotteryJson from '../assets/Lottery.json';
 import Footer from "@/components/instructionsComponent/navigation/footer";
 
-const TOKEN_ADDRESS = '0x3D1752A2BDA6D85347ad8d4FFD59ac7d3CEcEc11';
-const LOTTERY_ADDRESS = '0x576699323492733FC4EAA26b4C973D01054e86c1';
+const TOKEN_ADDRESS = '0xba64c03e45cc1E3Fe483dBDB3A671DBa7a0Ab7cD';
+const LOTTERY_ADDRESS = '0xC7FA315CFc80505F725B2ebB0d75e35D086f025d';
 
 export default function Loading() {
 	const [mounted, setMounted] = useState(false);
