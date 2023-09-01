@@ -4,6 +4,7 @@ import { useAccount, useBalance, useContractRead, useContractWrite, useNetwork, 
 import { BigNumberish, dataSlice, ethers, toBigInt } from 'ethers';
 import * as tokenJson from '../assets/LotteryToken.json';
 import * as lotteryJson from '../assets/Lottery.json';
+import Footer from "@/components/instructionsComponent/navigation/footer";
 
 const TOKEN_ADDRESS = '0x3D1752A2BDA6D85347ad8d4FFD59ac7d3CEcEc11';
 const LOTTERY_ADDRESS = '0x576699323492733FC4EAA26b4C973D01054e86c1';
@@ -45,6 +46,7 @@ function PageBody() {
 				<LotteryContract></LotteryContract>
 				<hr></hr>
 				<OwnerInteractions address={address}></OwnerInteractions>
+				<Footer />
 			</div>
 		);
 		if (isConnecting)
@@ -80,7 +82,6 @@ function UserInfo() {
 					</div>
 				</header>
 					<p>Connected to <i>{chain?.name}</i> network </p>
-					{/* <WalletBalance address={address}></WalletBalance> */}
 					<TokenName></TokenName>
 					<WalletTokenBalance address={address}></WalletTokenBalance>
 					<WinnerPrize address={address}></WinnerPrize> 
@@ -158,7 +159,7 @@ function WinnerPrize(params: { address: `0x${string}` }) {
   if (isError) return <div>Error checking bets state</div>;
   if (Number(data) === 0) return <div><p>⭕ You do not have any prize to claim...</p></div>
 	if (Number(data) !== 0) return <div>
-		<p>🏆 You have a prize of {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol> to claim!
+		<p>🏆 You have a prize of {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol>!&nbsp;
 		<WithdrawPrize amount={ethers.formatUnits(String(data))}></WithdrawPrize>
 		</p></div>;
 }
@@ -179,7 +180,7 @@ function WithdrawPrize({amount}: {amount: string}) {
 					})
 				}
 				>
-					Withdraw Prize
+					Claim Prize
 				</button>
 				{isLoading && <>&nbsp;Approve in wallet</>}
 				{isSuccess && <>&nbsp; 
@@ -221,7 +222,7 @@ function BetsState() {
 	if (isLoading) return <div>Checking bets state…</div>;
   if (isError) return <div>Error checking bets state</div>;
 	if (betsOpen) return <div><b>Bets state:</b> Open <CloseLottery isDisabled={betsOpen}></CloseLottery></div>;
-	if (!betsOpen) return <div><b>Bets state:</b> Open <CloseLottery isDisabled={betsOpen}></CloseLottery></div>;
+	if (!betsOpen) return <div><b>Bets state:</b> Closed <CloseLottery isDisabled={betsOpen}></CloseLottery></div>;
 }
 
 function BetsClosingTime() {
@@ -238,12 +239,15 @@ function BetsClosingTime() {
 
 	if (isLoading) return <div>Checking closing time…</div>;
   if (isError) return <div>Error checking closing time</div>;
-  if (time === 0) return <div><b>Closing time:</b> Not defined</div>;
-	if (time < now.getTime()) return <div><b>Closing time:</b> ended at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>
-	if (time !== 0) return <div><b>Closing time:</b> ending at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+  if (time === 0) return <div>
+		<b>Closing time:</b> Not defined</div>;
+	if (time < now.getTime()/1000) return <div>
+		Lottery ended at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
+	if (time > now.getTime()/1000) return <div>
+		Lottery ending at {closingTime.toLocaleTimeString()} ({closingTime.toLocaleDateString()})</div>;
 }
 
-function CloseLottery({isDisabled}: {isDisabled: boolean}) {
+function CloseLottery(isDisabled: {isDisabled: boolean}) {
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
@@ -302,7 +306,7 @@ function BetFee() {
   return String(data);
 }
 
-// formatUnits function started givin problems... had to change to 10**18
+// formatUnits function started giving problems... had to change to 10**18
 function FinalPrice() {
 	const price = BetPrice();
 	const fee = BetFee();
@@ -320,7 +324,7 @@ function PrizePool() {
 
 	if (isLoading) return <div>Checking Prize Pool…</div>;
   if (isError) return <div>Error checking Prize Pool</div>;
-  return <div><b>Prize Pool:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol></div>;
+  return <div><b>Prize Pool:</b> {ethers.formatUnits(String(data))} <TokenSymbol></TokenSymbol> </div>;
 }
 
 ////////\\\\\\\\   LOTTERY CONTRACT   ////////\\\\\\\\
@@ -440,7 +444,6 @@ function SellTokens() {
     abi: lotteryJson.abi,
     functionName: 'returnTokens',
   })
-	console.info({data});
 		return (
 			<div>
 				<input
@@ -587,6 +590,7 @@ function OwnerInteractions(params: { address: `0x${string}` }) {
 			<header className={styles.header_container}>
 				<div className={styles.header}>
 					<h3>Owner Interactions</h3>
+					You are not the owner!
 				</div>
 			</header>
 		</>
@@ -608,6 +612,7 @@ function OwnerFees() {
 
 function OpenBets() {
 	const [amount, setDeadline] = useState("");
+	const now = new Date();
 	const { data, isLoading, isSuccess, write } = useContractWrite({
     address: LOTTERY_ADDRESS,
     abi: lotteryJson.abi,
@@ -618,15 +623,15 @@ function OpenBets() {
 			<b>Start Lottery</b>
 			<br></br>
 				<input
-					type='number'
+					type='datetime-local'
+					min={`${now.toISOString()}`.slice(0, -8)}
 					value={amount}
 					onChange={(e) => setDeadline(e.target.value)}
-					placeholder="Deadline"
 				/>
 				<button
 					disabled={!write}
 					onClick={() =>write ({
-						args: [amount]
+						args: [BigInt(`${new Date(amount).getTime()/1000}`)]
 					})
 				}
 				>
