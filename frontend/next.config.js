@@ -4,7 +4,6 @@ const nextConfig = {};
 module.exports = nextConfig;
 
 module.exports = {
-	ignoreBuildErrors: true,
   reactStrictMode: false,
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false };
