@@ -6,8 +6,8 @@ Decentralized Lottery application based on previously deployed Token and Lottery
 
 https://esbq3-group6-lottery.netlify.app/
 
-- **Token contract**: 0xba64c03e45cc1E3Fe483dBDB3A671DBa7a0Ab7cD
-- **Lottery contract**: 0xC7FA315CFc80505F725B2ebB0d75e35D086f025d
+- **Token contract**: 0xdCf3F6153F328A7Aacd7C688Bf39E8750a375746
+- **Lottery contract**: 0x6F6a8b38dE122ED01Db29Ba169EFB6D128d795d6
 
 The dApp displays information about the connected wallet and the Lottery state. It also allows the purchase/sell of the tokens needed to enter the Lottery and the redeeming of the Lottery prize (by the winner). When the owner of the deployed contracts connects, a new section appears where he can start a new Lottery, withdraw the fees collected or transfer the ownership to another account.
 
