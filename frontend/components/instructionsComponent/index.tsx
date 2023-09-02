@@ -21,10 +21,7 @@ export default function Loading() {
 				<header className={styles.header_container}>
 					<div className={styles.header}>
 						<img src="https://tomato-leading-stoat-542.mypinata.cloud/ipfs/QmZB7CZADmeJ2wwas5U6wbdP3MZ84mUWDoqGxCq5JtYpDq"></img>
- 						{/*<h1>
-						🤑 <span> Lottery</span> 🤑
-						</h1>
-						<h3>The ultimate web3 Lottery</h3> */}
+						<span><h2><PrizePool></PrizePool></h2></span>
 					</div>
 				</header>
 					<p className={styles.get_started}>
