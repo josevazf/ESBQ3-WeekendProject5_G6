@@ -202,7 +202,6 @@ function LotteryInfo() {
 				<BetsClosingTime></BetsClosingTime>
 				<TokenPrice></TokenPrice>
 				<FinalPrice></FinalPrice>
-				<PrizePool></PrizePool>
 		</div>
 	);
 }
